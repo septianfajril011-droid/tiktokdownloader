@@ -176,8 +176,9 @@
                 
                 // 1. Set link video (Play tanpa watermark)
                 const videoUrl = videoData.play; 
-                document.getElementById('videoPreview').src = videoUrl;
-                document.getElementById('downloadBtn').href = videoUrl;
+                const downloadUrl = videoUrl.includes ('?') ? videoUrl + '&download=1' : videoUrl + '?download=1'
+                document.getElementById('downloadBtn').href = downloadUrl
+
                 
                 // 2. Set teks info (Judul & Author)
                 document.getElementById('videoInfo').innerHTML = `
