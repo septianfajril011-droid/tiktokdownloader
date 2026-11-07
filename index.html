@@ -177,6 +177,7 @@
                 // 1. Set link video (Play tanpa watermark)
                 const videoUrl = videoData.play; 
                 const downloadUrl = videoUrl.includes ('?') ? videoUrl + '&download=1' : videoUrl + '?download=1'
+                document.getElementById('videoPreview').src = videoUrl
                 document.getElementById('downloadBtn').href = downloadUrl
 
                 
