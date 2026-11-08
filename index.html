@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TikTok Downloader</title>
+<title>TikTok Downloader - Video & Foto</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
     :root {
@@ -76,7 +76,7 @@
         submitBtn.disabled = true;
 
         try {
-            // PAKE PROXY CORS GRATIS BIAR GAK KENA BLOKIR
+            // Pake Proxy CORS Gratis buat nembus blokir browser
             const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
             
@@ -89,12 +89,15 @@
             if (data.code === 0 && data.data) {
                 const d = data.data;
                 
+                // Tampilkan Info
                 document.getElementById('info').innerHTML = `
                     <strong>${d.title || 'TikTok Media'}</strong><br>
                     <span style="color:#666;">@${d.author?.unique_id || 'user'}</span>
                 `;
 
+                // Cek apakah ini Video atau Foto (Slide)
                 if (d.images && d.images.length > 0) {
+                    // --- JIKA FOTO ---
                     const grid = document.createElement('div');
                     grid.className = 'photo-grid';
                     d.images.forEach((img, i) => {
@@ -107,15 +110,16 @@
                         grid.appendChild(div);
                     });
                     mediaContainer.appendChild(grid);
-                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.images[0]}', 'foto-1.jpg')">Download Foto</button>`;
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.images[0]}', 'foto-1.jpg')">Download Semua Foto (Manual)</button>`;
                 } else {
+                    // --- JIKA VIDEO ---
                     const video = document.createElement('video');
                     video.className = 'video-preview';
                     video.src = d.play;
                     video.controls = true;
                     mediaContainer.appendChild(video);
                     
-                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.play}', 'video.mp4')">Simpan Video</button>`;
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.play}', 'video.mp4')">Simpan Video ke Galeri</button>`;
                 }
 
                 result.style.display = 'block';
@@ -130,21 +134,27 @@
         }
     }
 
+    // Fungsi Download Pake Blob (Maksa Browser Nyimpen)
     async function downloadFile(url, filename) {
         try {
             const fullUrl = url.startsWith('http') ? url : `https://www.tikwm.com${url}`;
+            
+            // Ambil data file
             const response = await fetch(fullUrl);
             const blob = await response.blob();
             const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Bikin elemen <a> gaib buat nge-download
             const a = document.createElement('a');
             a.href = blobUrl;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
             a.remove();
+            
             setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
         } catch (err) {
-            alert("Browser memblokir download otomatis. Silakan tap kanan pada media lalu pilih 'Save'.");
+            alert("Browser memblokir download otomatis. Silakan tap kanan / tahan pada media, lalu pilih 'Simpan'.");
         }
     }
 </script>
