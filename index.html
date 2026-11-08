@@ -76,16 +76,12 @@
         submitBtn.disabled = true;
 
         try {
-            const res = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
+            // PAKE PROXY CORS GRATIS BIAR GAK KENA BLOKIR
+            const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
             
-            // Cek apakah response valid JSON
-            const text = await res.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (err) {
-                throw new Error("Respon server tidak valid. Mungkin API sedang down.");
-            }
+            const res = await fetch(proxyUrl);
+            const data = await res.json();
 
             status.style.display = 'none';
             submitBtn.disabled = false;
@@ -93,15 +89,12 @@
             if (data.code === 0 && data.data) {
                 const d = data.data;
                 
-                // Tampilkan Info
                 document.getElementById('info').innerHTML = `
                     <strong>${d.title || 'TikTok Media'}</strong><br>
                     <span style="color:#666;">@${d.author?.unique_id || 'user'}</span>
                 `;
 
-                // Cek Foto atau Video
                 if (d.images && d.images.length > 0) {
-                    // --- JIKA FOTO ---
                     const grid = document.createElement('div');
                     grid.className = 'photo-grid';
                     d.images.forEach((img, i) => {
@@ -114,16 +107,15 @@
                         grid.appendChild(div);
                     });
                     mediaContainer.appendChild(grid);
-                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.images[0]}', 'foto-1.jpg')">Download Semua Foto (Manual)</button>`;
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.images[0]}', 'foto-1.jpg')">Download Foto</button>`;
                 } else {
-                    // --- JIKA VIDEO ---
                     const video = document.createElement('video');
                     video.className = 'video-preview';
                     video.src = d.play;
                     video.controls = true;
                     mediaContainer.appendChild(video);
                     
-                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.play}', 'video.mp4')">Simpan Video ke Galeri</button>`;
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.play}', 'video.mp4')">Simpan Video</button>`;
                 }
 
                 result.style.display = 'block';
@@ -134,29 +126,22 @@
             console.error(error);
             status.style.display = 'none';
             submitBtn.disabled = false;
-            alert(error.message || "Terjadi kesalahan jaringan.");
+            alert("Gagal konek ke API. Coba lagi nanti atau ganti link.");
         }
     }
 
-    // Fungsi Download Pake Blob
     async function downloadFile(url, filename) {
         try {
-            // Handle URL relative/absolute
             const fullUrl = url.startsWith('http') ? url : `https://www.tikwm.com${url}`;
-            
             const response = await fetch(fullUrl);
-            if(!response.ok) throw new Error("Gagal ambil file");
-            
             const blob = await response.blob();
             const blobUrl = window.URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = blobUrl;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            
             setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
         } catch (err) {
             alert("Browser memblokir download otomatis. Silakan tap kanan pada media lalu pilih 'Save'.");
