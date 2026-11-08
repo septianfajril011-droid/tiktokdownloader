@@ -3,193 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TikTok Downloader - Video & Foto</title>
+<title>TikTok Downloader</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
     :root {
         --bg: #f4f4f0; --ink: #111111; --pink: #ff3b7a; --cyan: #45ffe8;
         --yellow: #ffd645; --white: #ffffff; --border: 2.5px solid var(--ink);
-        --shadow: 5px 5px 0 var(--ink); --shadow-lg: 8px 8px 0 var(--pink);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-        background-color: var(--bg); color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif;
-        min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
-    }
-    .container {
-        width: 100%; max-width: 500px; background: var(--white); border: var(--border);
-        box-shadow: var(--shadow-lg); padding: 40px 30px; position: relative;
-    }
-    .logo { font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+    body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .container { width: 100%; max-width: 500px; background: var(--white); border: var(--border); box-shadow: 8px 8px 0 var(--pink); padding: 40px 30px; }
+    .logo { font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 8px; }
     .logo span { color: var(--pink); -webkit-text-stroke: 1px var(--ink); }
     .subtitle { text-align: center; font-size: 14px; font-weight: 600; color: #666; margin-bottom: 30px; }
     
-    .input-group input {
-        width: 100%; padding: 16px; border: var(--border); border-radius: 12px;
-        font-family: inherit; font-size: 14px; font-weight: 600; outline: none;
-        box-shadow: 3px 3px 0 var(--ink); transition: 0.2s; margin-bottom: 15px;
-    }
-    .input-group input:focus { box-shadow: 5px 5px 0 var(--yellow); transform: translate(-2px, -2px); }
-
-    .btn-download {
-        width: 100%; padding: 16px; background: var(--ink); color: var(--white);
-        border: var(--border); border-radius: 12px; font-weight: 800; font-size: 16px;
-        text-transform: uppercase; cursor: pointer; box-shadow: 4px 4px 0 var(--pink);
-        transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px;
-    }
-    .btn-download:hover { transform: translate(4px, 4px); box-shadow: none; }
-    .btn-download:disabled { background: #ccc; cursor: not-allowed; }
+    input { width: 100%; padding: 16px; border: var(--border); border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 600; outline: none; box-shadow: 3px 3px 0 var(--ink); margin-bottom: 15px; }
+    input:focus { box-shadow: 5px 5px 0 var(--yellow); transform: translate(-2px, -2px); }
+    
+    button { width: 100%; padding: 16px; background: var(--ink); color: var(--white); border: var(--border); border-radius: 12px; font-weight: 800; font-size: 16px; text-transform: uppercase; cursor: pointer; box-shadow: 4px 4px 0 var(--pink); transition: 0.1s; }
+    button:hover { transform: translate(4px, 4px); box-shadow: none; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
 
     .status { margin-top: 20px; text-align: center; display: none; padding: 15px; background: var(--cyan); border: var(--border); border-radius: 12px; font-weight: 700; }
     .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(0,0,0,0.1); border-radius: 50%; border-top-color: var(--ink); animation: spin 1s infinite; margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Hasil */
     .result-box { display: none; margin-top: 30px; padding-top: 30px; border-top: 2px dashed #ccc; }
-    .media-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-    
-    .video-preview { width: 100%; border: var(--border); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); background: #000; max-height: 400px; }
-    
-    .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .photo-item { position: relative; border: var(--border); border-radius: 8px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
+    .video-preview { width: 100%; border: var(--border); border-radius: 12px; margin-bottom: 15px; background: #000; max-height: 400px; }
+    .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .photo-item { border: var(--border); border-radius: 8px; overflow: hidden; position: relative; }
     .photo-item img { width: 100%; height: 150px; object-fit: cover; display: block; }
-    .photo-item .btn-save-img { position: absolute; bottom: 5px; right: 5px; background: var(--yellow); border: 2px solid var(--ink); padding: 4px 8px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 4px; }
-
-    .video-info { font-size: 14px; font-weight: 600; background: var(--bg); padding: 12px; border: 2px solid var(--ink); border-radius: 8px; margin-bottom: 15px; }
-    .video-info span { display: block; font-size: 12px; color: #666; margin-top: 4px; }
-
-    .btn-save { width: 100%; padding: 16px; background: var(--yellow); color: var(--ink); text-align: center; border: var(--border); border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); transition: 0.1s; }
-    .btn-save:hover { transform: translate(3px, 3px); box-shadow: none; }
+    .photo-item button { position: absolute; bottom: 5px; right: 5px; width: auto; padding: 5px 10px; font-size: 12px; background: var(--yellow); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    
+    .info { font-size: 14px; font-weight: 600; background: var(--bg); padding: 12px; border: 2px solid var(--ink); border-radius: 8px; margin-bottom: 15px; }
+    .btn-save { background: var(--yellow); color: var(--ink); }
 </style>
 </head>
 <body>
 
 <div class="container">
     <div class="logo">TikTok<span>DL.</span></div>
-    <div class="subtitle">Download Video & Foto (Tanpa Watermark)</div>
+    <div class="subtitle">Download Video & Foto</div>
 
-    <form id="downloadForm" onsubmit="handleDownload(event)">
-        <div class="input-group">
-            <input type="url" id="tiktokUrl" placeholder="Paste link TikTok di sini..." required>
-        </div>
-        <button type="submit" class="btn-download" id="submitBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Proses Link
-        </button>
+    <form onsubmit="processLink(event)">
+        <input type="url" id="urlInput" placeholder="Paste link TikTok di sini..." required>
+        <button type="submit" id="submitBtn">Proses Link</button>
     </form>
 
-    <div class="status" id="statusText"><span class="spinner"></span> Sedang memproses...</div>
+    <div class="status" id="status">Memproses data...</div>
 
-    <div class="result-box" id="resultBox">
-        <div class="media-container" id="mediaContainer"></div>
-        <div class="video-info" id="videoInfo"></div>
-        <div id="actionButtons"></div>
+    <div class="result-box" id="result">
+        <div id="mediaContainer"></div>
+        <div class="info" id="info"></div>
+        <div id="actionArea"></div>
     </div>
 </div>
 
 <script>
-    // Variabel global buat nyimpen link mentah
-    let currentMediaUrl = "";
-
-    async function handleDownload(event) {
-        event.preventDefault();
-        
-        const url = document.getElementById('tiktokUrl').value;
-        const status = document.getElementById('statusText');
-        const resultBox = document.getElementById('resultBox');
+    async function processLink(e) {
+        e.preventDefault();
+        const url = document.getElementById('urlInput').value;
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
         const mediaContainer = document.getElementById('mediaContainer');
-        const actionButtons = document.getElementById('actionButtons');
+        const actionArea = document.getElementById('actionArea');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Reset
-        resultBox.style.display = 'none';
+        result.style.display = 'none';
         mediaContainer.innerHTML = '';
-        actionButtons.innerHTML = '';
+        actionArea.innerHTML = '';
         status.style.display = 'block';
         submitBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
-            const data = await response.json();
+            const res = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
+            
+            // Cek apakah response valid JSON
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (err) {
+                throw new Error("Respon server tidak valid. Mungkin API sedang down.");
+            }
 
             status.style.display = 'none';
             submitBtn.disabled = false;
 
             if (data.code === 0 && data.data) {
-                const tiktokData = data.data;
+                const d = data.data;
                 
-                // Set Info
-                document.getElementById('videoInfo').innerHTML = `
-                    ${tiktokData.title || 'TikTok Media'}
-                    <span>@${tiktokData.author.unique_id || 'unknown'}</span>
+                // Tampilkan Info
+                document.getElementById('info').innerHTML = `
+                    <strong>${d.title || 'TikTok Media'}</strong><br>
+                    <span style="color:#666;">@${d.author?.unique_id || 'user'}</span>
                 `;
 
-                // Cek apakah ini Video atau Foto (Slide)
-                if (tiktokData.images && tiktokData.images.length > 0) {
-                    // JIKA FOTO
+                // Cek Foto atau Video
+                if (d.images && d.images.length > 0) {
+                    // --- JIKA FOTO ---
                     const grid = document.createElement('div');
                     grid.className = 'photo-grid';
-                    
-                    tiktokData.images.forEach((imgUrl, index) => {
+                    d.images.forEach((img, i) => {
                         const div = document.createElement('div');
                         div.className = 'photo-item';
                         div.innerHTML = `
-                            <img src="${imgUrl}" alt="Foto ${index + 1}">
-                            <button class="btn-save-img" onclick="forceDownload('${imgUrl}', 'TikTok-Photo-${index+1}.jpg')">⬇ Save</button>
+                            <img src="${img}">
+                            <button onclick="downloadFile('${img}', 'foto-${i+1}.jpg')">⬇ Save</button>
                         `;
                         grid.appendChild(div);
                     });
                     mediaContainer.appendChild(grid);
-                    actionButtons.innerHTML = `<button class="btn-save" onclick="forceDownload('${tiktokData.images[0]}', 'TikTok-Photo-1.jpg')">Download Foto Pertama</button>`;
-
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.images[0]}', 'foto-1.jpg')">Download Semua Foto (Manual)</button>`;
                 } else {
-                    // JIKA VIDEO
-                    currentMediaUrl = tiktokData.play;
-                    
+                    // --- JIKA VIDEO ---
                     const video = document.createElement('video');
                     video.className = 'video-preview';
-                    video.src = currentMediaUrl;
+                    video.src = d.play;
                     video.controls = true;
                     mediaContainer.appendChild(video);
-
-                    actionButtons.innerHTML = `<button class="btn-save" onclick="forceDownload('${currentMediaUrl}', 'TikTok-Video.mp4')">Simpan Video ke Galeri</button>`;
+                    
+                    actionArea.innerHTML = `<button class="btn-save" onclick="downloadFile('${d.play}', 'video.mp4')">Simpan Video ke Galeri</button>`;
                 }
 
-                resultBox.style.display = 'block';
+                result.style.display = 'block';
             } else {
-                alert(data.msg || "Gagal memproses link. Pastikan link valid.");
+                alert("Gagal: " + (data.msg || "Link tidak valid atau video private."));
             }
-
         } catch (error) {
             console.error(error);
             status.style.display = 'none';
             submitBtn.disabled = false;
-            alert("Terjadi kesalahan jaringan. Coba lagi nanti.");
+            alert(error.message || "Terjadi kesalahan jaringan.");
         }
     }
 
-    // FUNGSI SAKTI BUAT MAKSA DOWNLOAD (VIDEO/FOTO)
-    async function forceDownload(url, filename) {
+    // Fungsi Download Pake Blob
+    async function downloadFile(url, filename) {
         try {
-            // Ambil data file
-            const response = await fetch(url);
+            // Handle URL relative/absolute
+            const fullUrl = url.startsWith('http') ? url : `https://www.tikwm.com${url}`;
+            
+            const response = await fetch(fullUrl);
+            if(!response.ok) throw new Error("Gagal ambil file");
+            
             const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
             
-            // Bikin URL internal browser
-            const downloadUrl = window.URL.createObjectURL(blob);
-            
-            // Bikin elemen <a> tersembunyi buat nge-trigger download
             const a = document.createElement('a');
-            a.href = downloadUrl;
+            a.href = blobUrl;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
             a.remove();
             
-            // Bersihin memori
-            window.URL.revokeObjectURL(downloadUrl);
+            setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
         } catch (err) {
-            alert("Gagal mengunduh. Coba pencet kanan / tahan gambar lalu pilih 'Save'.");
+            alert("Browser memblokir download otomatis. Silakan tap kanan pada media lalu pilih 'Save'.");
         }
     }
 </script>
