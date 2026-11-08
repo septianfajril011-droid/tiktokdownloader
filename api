@@ -1,32 +1,14 @@
-// File: api/download.js
-// Fungsi ini berjalan di server Vercel (Node.js)
-
 export default async function handler(req, res) {
-    // 1. Cek method harus GET
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    // 2. Ambil URL TikTok dari query parameter (?url=...)
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    
     const { url } = req.query;
-
-    if (!url) {
-        return res.status(400).json({ error: 'URL TikTok wajib diisi' });
-    }
+    if (!url) return res.status(400).json({ error: 'URL wajib diisi' });
 
     try {
-        // 3. Tembak API TikWM dari sisi server (Bebas dari blokir CORS browser)
         const apiResponse = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
         const data = await apiResponse.json();
-
-        // 4. Kembalikan data JSON ke frontend (index.html)
         res.status(200).json(data);
-
     } catch (error) {
-        console.error("API Error:", error);
-        res.status(500).json({ 
-            code: -1, 
-            msg: "Gagal mengambil data dari server TikWM. Coba lagi nanti." 
-        });
+        res.status(500).json({ code: -1, msg: "Gagal konek ke server TikWM." });
     }
 }
